@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#b71c1c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Emergencia">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Emergencia</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+html,body{margin:0;min-height:100%;background:#111;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overscroll-behavior:none}
+[hidden]{display:none!important}
+.screen{height:100dvh;display:flex;flex-direction:column;gap:12px;padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom))}
+.screen.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.big{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:24px;color:#fff;text-decoration:none;text-align:center;font-weight:800;font-size:clamp(24px,7.5vw,40px);padding:8px;border:0;font-family:inherit}
+.big small{font-size:clamp(20px,6vw,30px);font-weight:600;margin-top:4px}
+.big:active{filter:brightness(1.25);transform:scale(.98)}
+.red{background:#d32f2f}.dred{background:#8e0000}.orange{background:#e65100}.blue{background:#1565c0}.green{background:#2e7d32}.purple{background:#6a1b9a}.gray{background:#444}
+.row{display:flex;gap:10px;height:64px;flex:none}
+.row a,.row button{flex:1;display:flex;align-items:center;justify-content:center;background:#2a2a2a;color:#fff;border:0;border-radius:16px;font-size:18px;font-weight:700;text-decoration:none;font-family:inherit}
+.row .gear{flex:none;width:64px;font-size:26px}
+.row a:active,.row button:active{background:#3a3a3a}
+.back{flex:none;display:flex;align-items:center;height:56px;padding:0 18px;background:#2a2a2a;color:#fff;border-radius:16px;font-size:20px;font-weight:700;text-decoration:none;align-self:flex-start}
+h1{margin:0;font-size:24px}
+h2{margin:0 0 10px;font-size:26px}
+h3{margin:0 0 8px;font-size:17px;color:#ccc}
+.card{background:#1e1e1e;border-radius:16px;padding:14px;flex:none}
+.card p,.card .v{margin:0;font-size:20px;line-height:1.35;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text}
+.sel{-webkit-user-select:text;user-select:text}
+input,textarea{width:100%;margin:0 0 8px;padding:12px;border-radius:10px;border:2px solid #555;background:#000;color:#fff;font-size:18px;font-family:inherit;-webkit-user-select:text;user-select:text}
+textarea{min-height:80px}
+.btn{width:100%;height:58px;margin-top:8px;border:0;border-radius:14px;background:#1565c0;color:#fff;font-size:20px;font-weight:700;font-family:inherit;flex:none}
+.btn.gray{background:#444}.btn.red{background:#d32f2f}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.box{width:100%;max-width:480px;display:flex;flex-direction:column;gap:12px}
+.box .big{flex:none;height:20vh}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(90px + env(safe-area-inset-bottom));background:#fff;color:#000;border-radius:12px;padding:12px;font-size:17px;font-weight:600;text-align:center;z-index:20}
+.chk{display:flex;align-items:center;gap:10px;font-size:18px}.chk input{width:28px;height:28px;margin:0}
+noscript a{display:block;padding:18px;margin:8px;background:#d32f2f;color:#fff;font-size:24px;text-align:center;border-radius:16px;text-decoration:none}
+</style>
+</head>
+<body>
+
+<main id="s-home" class="screen">
+  <a class="big red" href="#emergencias"><b>🚨 EMERGENCIAS</b></a>
+  <a class="big blue" href="#padres"><b>👨‍👩‍👦 PADRES</b></a>
+  <a class="big green" data-k="ab1" data-name="1" href="tel:099982115"><b>ABUELA CECILIA</b><small>099 982 115</small></a>
+  <a class="big purple" data-k="ab2" data-name="1" href="tel:099192105"><b>ABUELA RAQUEL</b><small>099 192 105</small></a>
+  <div class="row">
+    <a href="#ubicacion">📍 Mi ubicación</a>
+    <a href="#datos">📋 Mis datos</a>
+    <button class="gear" id="gear" aria-label="Ajustes de los padres">⚙</button>
+  </div>
+</main>
+
+<main id="s-emergencias" class="screen" hidden>
+  <a class="back" href="#home">← Volver</a>
+  <a class="big red" data-k="e911" href="tel:911"><b>EMERGENCIAS</b><small>911</small></a>
+  <a class="big orange" data-k="ucm" href="tel:147"><b>UCM</b><small>147</small></a>
+  <a class="big dred" data-k="e1" href="tel:1830"><b>EMERGENCIA UNO</b><small>1830</small></a>
+</main>
+
+<main id="s-padres" class="screen" hidden>
+  <a class="back" href="#home">← Volver</a>
+  <a class="big blue" data-k="mama" data-name="1" href="tel:099251462"><b>MAMÁ</b><small>099 251 462</small></a>
+  <a class="big blue" data-k="papa" data-name="1" href="tel:099622780"><b>PAPÁ</b><small>099 622 780</small></a>
+</main>
+
+<main id="s-ubicacion" class="screen scroll" hidden>
+  <a class="back" href="#home">← Volver</a>
+  <h2>📍 Mi ubicación</h2>
+  <div class="card"><h3>Ubicación actual (GPS)</h3><div class="v" id="locOut">Buscando…</div></div>
+  <div class="card" id="locDirCard" hidden><h3>Dirección de casa</h3><div class="v" id="locDir"></div></div>
+  <button class="btn gray" id="locAgain">🔄 Buscar de nuevo</button>
+  <button class="btn gray" id="locCopy">📋 Copiar ubicación</button>
+  <button class="btn green" id="wa-mama" style="background:#2e7d32">Avisar a Mamá</button>
+  <button class="btn green" id="wa-papa" style="background:#2e7d32">Avisar a Papá</button>
+</main>
+
+<main id="s-datos" class="screen scroll" hidden>
+  <a class="back" href="#home">← Volver</a>
+  <h2>📋 Mis datos</h2>
+  <div id="datosOut" style="display:flex;flex-direction:column;gap:12px"></div>
+</main>
+
+<main id="s-ajustes" class="screen scroll" hidden>
+  <a class="back" href="#home">← Volver</a>
+  <h2>⚙ Ajustes de los padres</h2>
+  <div id="ajForm" style="display:flex;flex-direction:column;gap:12px"></div>
+  <button class="btn" id="ajSave">Guardar cambios</button>
+  <button class="btn gray" id="ajReset">Restaurar valores originales</button>
+</main>
+
+<div id="ov911" class="ov" hidden><div class="box">
+  <h2 style="text-align:center;font-size:30px">¿Llamar al <span id="n911">911</span>?</h2>
+  <a id="go911" class="big red" href="tel:911"><b>SÍ, LLAMAR</b></a>
+  <button id="no911" class="big gray"><b>NO, VOLVER</b></button>
+</div></div>
+
+<div id="ovpin" class="ov" hidden><div class="box">
+  <h2>PIN de los padres</h2>
+  <input id="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN">
+  <div id="pinerr" style="color:#ff8a80;min-height:22px"></div>
+  <button class="btn" id="pinok">Entrar</button>
+  <button class="btn gray" id="pinno">Cancelar</button>
+</div></div>
+
+<div id="toast" hidden></div>
+
+<noscript>
+  <a href="tel:911">911</a><a href="tel:147">UCM 147</a><a href="tel:1830">Emergencia Uno 1830</a>
+  <a href="tel:099251462">Mamá</a><a href="tel:099622780">Papá</a>
+</noscript>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var DEF={mama:['Mamá','099251462'],papa:['Papá','099622780'],ab1:['Abuela Cecilia','099982115'],ab2:['Abuela Raquel','099192105'],e911:['Emergencias','911'],ucm:['UCM','147'],e1:['Emergencia Uno','1830']};
+var LABELS={mama:'Mamá',papa:'Papá',ab1:'Abuela 1',ab2:'Abuela 2',e911:'Emergencias (911)',ucm:'UCM',e1:'Emergencia Uno'};
+var CONTACTS=['mama','papa','ab1','ab2'];
+var TEL=/^\+?[0-9*#]{2,20}$/;
+
+var LS={
+  get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+  set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+};
+function load(){
+  var s=LS.get('cfg')||{},c={};
+  for(var k in DEF){
+    var v=s[k]||{},t=typeof v.t==='string'?v.t.replace(/[\s-]/g,''):'';
+    c[k]={n:(typeof v.n==='string'&&v.n.trim())?v.n.trim():DEF[k][0],t:TEL.test(t)?t:DEF[k][1]};
+  }
+  return c;
+}
+var cfg=load();
+var ficha=(function(){var f=LS.get('ficha')||{};return{nombre:typeof f.nombre==='string'?f.nombre:'Santiago',dir:f.dir||'',med:f.med||'',otros:f.otros||''}})();
+var pin=(typeof LS.get('pin')==='string'&&/^\d{4,8}$/.test(LS.get('pin')))?LS.get('pin'):'1234';
+var conf=LS.get('conf911'); if(conf===null||conf===undefined)conf=true;
+var unlocked=false,last=null;
+
+function fmt(t){return /^\d{9}$/.test(t)?t.replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3'):t}
+function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){t.hidden=true},2800)}
+
+function apply(){
+  var els=document.querySelectorAll('[data-k]');
+  for(var i=0;i<els.length;i++){
+    var a=els[i],c=cfg[a.dataset.k];
+    a.setAttribute('href','tel:'+c.t);
+    var s=a.querySelector('small');if(s)s.textContent=fmt(c.t);
+    if(a.dataset.name){var b=a.querySelector('b');if(b)b.textContent=c.n.toUpperCase()}
+  }
+  $('wa-mama').textContent='💬 Avisar a '+cfg.mama.n+' por WhatsApp';
+  $('wa-papa').textContent='💬 Avisar a '+cfg.papa.n+' por WhatsApp';
+}
+
+/* Navegación */
+var SCREENS=['home','emergencias','padres','ubicacion','datos','ajustes'];
+function route(){
+  var h=location.hash.slice(1);
+  if(SCREENS.indexOf(h)<0)h='home';
+  if(h==='ajustes'&&!unlocked)h='home';
+  if(h!=='ajustes')unlocked=false;
+  SCREENS.forEach(function(s){$('s-'+s).hidden=(s!==h)});
+  if(h==='ubicacion')refreshLoc();
+  if(h==='datos')renderDatos();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+
+/* Confirmación 911 */
+var b911=document.querySelectorAll('[data-k="e911"]');
+for(var i=0;i<b911.length;i++){b911[i].addEventListener('click',function(ev){
+  if(!conf)return;
+  ev.preventDefault();
+  $('n911').textContent=cfg.e911.t;
+  $('go911').setAttribute('href','tel:'+cfg.e911.t);
+  $('ov911').hidden=false;
+})}
+$('no911').addEventListener('click',function(){$('ov911').hidden=true});
+$('go911').addEventListener('click',function(){setTimeout(function(){$('ov911').hidden=true},400)});
+
+/* Ubicación */
+function getLoc(cb){
+  if(!navigator.geolocation){cb(null);return}
+  navigator.geolocation.getCurrentPosition(function(p){
+    cb({lat:p.coords.latitude.toFixed(6),lng:p.coords.longitude.toFixed(6),acc:Math.round(p.coords.accuracy)});
+  },function(){cb(null)},{enableHighAccuracy:true,timeout:10000,maximumAge:30000});
+}
+function mapsUrl(c){return 'https://maps.google.com/?q='+c.lat+','+c.lng}
+function refreshLoc(){
+  var o=$('locOut');o.textContent='Buscando ubicación…';
+  $('locDirCard').hidden=!ficha.dir;$('locDir').textContent=ficha.dir;
+  getLoc(function(c){
+    if(!c){o.textContent=last?('No se pudo actualizar. Última ubicación:\n'+last.lat+', '+last.lng):'No se pudo obtener la ubicación. Activá el GPS y el permiso de ubicación del celular.';return}
+    last=c;o.textContent=c.lat+', '+c.lng+'\n(precisión aprox. '+c.acc+' m)';
+  });
+}
+$('locAgain').addEventListener('click',refreshLoc);
+$('locCopy').addEventListener('click',function(){
+  var txt=last?(last.lat+', '+last.lng+' '+mapsUrl(last)):(ficha.dir||'');
+  if(!txt){toast('Todavía no hay ubicación');return}
+  try{navigator.clipboard.writeText(txt).then(function(){toast('Copiado ✔')},function(){toast('No se pudo copiar')})}catch(e){toast('No se pudo copiar')}
+});
+function waNum(t){
+  var d=t.replace(/\D/g,'');
+  if(t.charAt(0)==='+')return d;
+  if(/^0\d{8}$/.test(d))return '598'+d.slice(1);
+  return d;
+}
+function waMsg(c){
+  var m='🚨 EMERGENCIA. Soy '+(ficha.nombre||'tu hijo')+' y necesito ayuda.';
+  if(c)m+=' Mi ubicación: '+mapsUrl(c);
+  else if(ficha.dir)m+=' Estoy en: '+ficha.dir;
+  return m;
+}
+function wa(k){
+  var go=function(c){location.href='https://wa.me/'+waNum(cfg[k].t)+'?text='+encodeURIComponent(waMsg(c))};
+  if(last)go(last);else{toast('Buscando ubicación…');getLoc(function(c){if(c)last=c;go(c)})}
+}
+$('wa-mama').addEventListener('click',function(){wa('mama')});
+$('wa-papa').addEventListener('click',function(){wa('papa')});
+
+/* Datos */
+function renderDatos(){
+  var o=$('datosOut');o.textContent='';
+  var rows=[['Nombre',ficha.nombre],['Dirección de casa',ficha.dir],['Datos médicos y alergias',ficha.med],['Otros datos',ficha.otros]],any=false;
+  rows.forEach(function(r){
+    if(!r[1])return;any=true;
+    var d=document.createElement('div');d.className='card';
+    var h=document.createElement('h3');h.textContent=r[0];
+    var v=document.createElement('div');v.className='v';v.textContent=r[1];
+    d.appendChild(h);d.appendChild(v);o.appendChild(d);
+  });
+  if(!any){var p=document.createElement('div');p.className='card';p.textContent='Todavía no hay datos cargados. Los padres pueden completarlos en ⚙.';o.appendChild(p)}
+}
+
+/* Ajustes con PIN (mantener apretado el engranaje) */
+var tm=null,g=$('gear');
+g.addEventListener('pointerdown',function(){tm=setTimeout(function(){tm=null;askPin()},1200)});
+['pointerup','pointerleave','pointercancel'].forEach(function(ev){g.addEventListener(ev,function(){
+  if(tm){clearTimeout(tm);tm=null;if(ev==='pointerup')toast('Mantené apretado el ⚙ para abrir los ajustes')}
+})});
+g.addEventListener('contextmenu',function(e){e.preventDefault()});
+function askPin(){$('pin').value='';$('pinerr').textContent='';$('ovpin').hidden=false;setTimeout(function(){$('pin').focus()},100)}
+$('pinno').addEventListener('click',function(){$('ovpin').hidden=true});
+$('pinok').addEventListener('click',function(){
+  if($('pin').value===pin){$('ovpin').hidden=true;unlocked=true;buildSettings();location.hash='#ajustes';route()}
+  else{$('pinerr').textContent='PIN incorrecto';$('pin').value=''}
+});
+function field(parent,tag,props){var e=document.createElement(tag);for(var k in props)e[k]=props[k];parent.appendChild(e);return e}
+function buildSettings(){
+  var f=$('ajForm');f.textContent='';
+  for(var k in DEF){
+    var card=field(f,'div',{className:'card'});
+    field(card,'h3',{textContent:LABELS[k]});
+    if(CONTACTS.indexOf(k)>=0)field(card,'input',{id:'f-n-'+k,value:cfg[k].n,placeholder:'Nombre'});
+    field(card,'input',{id:'f-t-'+k,value:cfg[k].t,type:'tel',placeholder:'Número'});
+  }
+  var c2=field(f,'div',{className:'card'});
+  field(c2,'h3',{textContent:'Datos de la persona'});
+  field(c2,'input',{id:'f-nombre',value:ficha.nombre,placeholder:'Nombre completo'});
+  field(c2,'input',{id:'f-dir',value:ficha.dir,placeholder:'Dirección de casa'});
+  field(c2,'textarea',{id:'f-med',value:ficha.med,placeholder:'Datos médicos, alergias, medicación'});
+  field(c2,'textarea',{id:'f-otros',value:ficha.otros,placeholder:'Otros datos (grupo sanguíneo, mutualista, cédula…)'});
+  var c3=field(f,'div',{className:'card'});
+  field(c3,'h3',{textContent:'Seguridad'});
+  field(c3,'input',{id:'f-pin',type:'password',inputMode:'numeric',maxLength:8,placeholder:'Nuevo PIN (4 a 8 números). Vacío = no cambiar'});
+  var l=field(c3,'label',{className:'chk'});
+  field(l,'input',{id:'f-conf',type:'checkbox',checked:!!conf});
+  field(l,'span',{textContent:'Pedir confirmación antes de llamar al 911'});
+}
+$('ajSave').addEventListener('click',function(){
+  var nc={};
+  for(var k in DEF){
+    var t=$('f-t-'+k).value.replace(/[\s-]/g,'');
+    if(!TEL.test(t)){toast('Número inválido: '+LABELS[k]);return}
+    var nEl=$('f-n-'+k),n=nEl?nEl.value.trim():'';
+    nc[k]={n:n||DEF[k][0],t:t};
+  }
+  var np=$('f-pin').value.trim();
+  if(np&&!/^\d{4,8}$/.test(np)){toast('El PIN debe tener de 4 a 8 números');return}
+  cfg=nc;
+  ficha={nombre:$('f-nombre').value.trim(),dir:$('f-dir').value.trim(),med:$('f-med').value.trim(),otros:$('f-otros').value.trim()};
+  conf=$('f-conf').checked;
+  if(np)pin=np;
+  var ok=LS.set('cfg',cfg)&LS.set('ficha',ficha)&LS.set('conf911',conf)&(np?LS.set('pin',pin):1);
+  apply();unlocked=false;location.hash='#home';route();
+  toast(ok?'Guardado ✔':'No se pudo guardar en este celular');
+});
+$('ajReset').addEventListener('click',function(){
+  if(!confirm('¿Restaurar todos los valores originales?'))return;
+  try{localStorage.clear()}catch(e){}
+  cfg=load();ficha={nombre:'Santiago',dir:'',med:'',otros:''};pin='1234';conf=true;
+  apply();unlocked=false;location.hash='#home';route();toast('Valores originales restaurados');
+});
+
+apply();route();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+})();
+</script>
+</body>
+</html>
